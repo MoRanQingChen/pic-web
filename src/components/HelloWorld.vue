@@ -25,11 +25,10 @@
     </el-date-picker>
     </el-col>
 </el-row>
-
-<el-row style="column-count: 4">
-  <div v-for="(o, index) in readList" :key="o" style="padding:15px;">
+<el-row>
+  <div v-for="(o, index) in readList" :key="o" style="width:25%;float:left;padding:15px;">
     <el-card :body-style="{ padding: '0px' }">
-      <img style="padding-bottom:40px" :src="'https://ipfs.io/ipfs/'+o.hash" class="image" @click="()=>{open('https://ipfs.io/ipfs/'+o.hash)}">
+      <img style="padding-bottom:40px" :src="'https://ipfs.io/ipfs/'+o" class="image" @click="()=>{open('https://ipfs.io/ipfs/'+o)}">
       <div style="padding: 14px;margin-top:-46px;">
         <div class="bottom clearfix">
           <time class="time">{{o.createAt}}</time>
@@ -50,7 +49,13 @@
   </div>
 </template>
 <script>
+import * as wilddog from 'wilddog'
+
 const repoPath = 'ipfs-' + Math.random()
+wilddog.initializeApp({
+  syncURL: 'https://wild-monkey-05234.wilddogio.com/' //输入节点 URL
+});
+const ref = wilddog.sync().ref()
 let node;
 function handleInit (err) {
   if (err) {
@@ -179,7 +184,8 @@ export default {
                   var server = Math.floor(Math.random() * 5);
                   var hashName = file.hash + '?' + server + '.' + upFileSuffix;
                   var picurl = 'https://ipfs.io/ipfs/' + hashName
-                  _this.$http.jsonp('https://24b99220.ngrok.io/node/record/'+hashName)
+                  // _this.$http.jsonp('https://24b99220.ngrok.io/node/record/'+hashName)
+                  ref.push(hashName)
                   _this.readList.unshift({
                     createAt:new Date(),
                     hash:hashName
@@ -195,10 +201,17 @@ export default {
       }
   },
   mounted(){
-    this.$http.jsonp('https://24b99220.ngrok.io/node/record',{jsonp:'cb',params:{page:1,size:10}}).then((data)=>{
-      console.log(data)
-      this.readList = data.body.docs;
-      this.count = data.body.count;
+    ref.limitToLast(25).once("value").then((snapshot)=>{
+      let data = snapshot.val()
+      let list = []
+      for(let key in data){
+        list.push(data[key])
+      }
+      list.reverse()
+      this.readList = list;
+    }).catch(function(err){
+      console.error(err);
+      this.readList = []
     })
     node = new Ipfs({
       init: false,
@@ -206,10 +219,6 @@ export default {
       repo: repoPath
     })
     node.init(handleInit)
-  //   window.a = this;
-  //   let data = {"code":200,"data":{"docs":[{"_id":"5a13fe07c98111977876a606","hash":"QmWNoTkXDcMHiSP2ojZbpjDS8PXCivcaddzSKsX2f5kThm?3.png","creatAt":"2017-11-21T10:20:50.208Z","createAt":"2017-11-21T10:20:55.065Z"}],"count":1}}
-  // this.readList = data.data.docs;
-  // this.count = data.data.count;
   }
 }
 </script>
