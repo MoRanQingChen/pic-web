@@ -1,6 +1,15 @@
 # pages
 
-> A Vue.js project
+> 一个基于 ipfs、wilddog 的无限图床
+> 不需要自己搭建后端，静态页即可直接使用
+
+## 进度
+
+页面搭建(已完成)
+ipfs上传功能(已完成)
+野狗云接入(已完成)
+serverWorker去中心化(待办)
+页面排版优化(待办)
 
 ## Build Setup
 
@@ -18,4 +27,3 @@ npm run build
 npm run build --report
 ```
 
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
